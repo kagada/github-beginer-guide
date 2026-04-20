@@ -1,0 +1,277 @@
+# 第4章：分支：安全地做实验
+
+上一章，你学会了如何撤销和修正。现在，让我们进入 Git 最强大的功能之一：分支。
+
+## 开始之前：检查你的 Git 版本
+
+在继续之前，先运行这个命令：
+
+```bash
+git --version
+```
+
+大多数情况下，新版本的 Git 会默认创建 `main` 分支。不过某些安装配置或旧版本可能会创建 `master` 分支。
+
+`main` 和 `master` 没有任何功能上的区别，只是名字不同。近年来，社区逐渐用 `main` 替代 `master` 作为默认分支名。
+
+如果你看到的是 `master`，在后续章节中把 `main` 替换成 `master` 即可，所有命令和操作完全一样。
+
+## 什么是分支？
+
+想象一下，你正在写一篇文档，突然想试试一种全新的写作风格，但又怕改乱了原来的内容。怎么办？
+
+分支就是 Git 的"平行宇宙"。你可以在一个分支上放心实验，而主分支上的内容完全不受影响。如果实验成功，把两个分支合并；如果失败了，直接删掉分支，主分支毫发无损。
+
+到目前为止，你一直在 `main` 分支上工作。这是 Git 默认的主分支。
+
+## 创建和查看分支
+
+在你的 `my-first-repo` 里运行：
+
+```bash
+git branch feature-darkmode
+```
+
+这个命令创建了一个名为 `feature-darkmode` 的新分支。它指向当前最新的提交。
+
+运行这个命令看看现在有哪些分支：
+
+```bash
+git branch
+```
+
+你会看到：
+
+```
+  feature-darkmode
+* main
+```
+
+`*` 标记表示你当前所在的分支。虽然你创建了 `feature-darkmode`，但你还停留在 `main` 上。
+
+## 切换分支
+
+要切换到新分支，运行：
+
+```bash
+git switch feature-darkmode
+```
+
+再次查看：
+
+```bash
+git branch
+```
+
+现在 `*` 出现在 `feature-darkmode` 旁边了。
+
+**`git switch` 会更新你的工作目录**，让它反映目标分支的状态。切换分支不会丢任何东西——你在 `main` 上的提交都安全地保存在那里。
+
+## 在分支上工作
+
+现在你在 `feature-darkmode` 分支上，放心做实验吧。
+
+在 `notes.txt` 里加几行内容，比如：
+
+```
+【实验区】我正在尝试新的笔记格式
+```
+
+然后提交：
+
+```bash
+git add notes.txt
+git commit -m "添加实验性笔记格式"
+```
+
+运行 `git log --oneline` 看看——这个提交只存在于 `feature-darkmode` 分支上。
+
+## 回到主分支
+
+实验做完了，回到 `main`：
+
+```bash
+git switch main
+```
+
+打开 `notes.txt` 看看——你刚才添加的实验内容不见了。别紧张，它没有丢，只是 `main` 分支上没有这个提交。
+
+运行 `git log --oneline` 确认一下——最新的提交不在 `main` 上。
+
+## 合并分支
+
+如果你满意实验的结果，可以把 `feature-darkmode` 的改动合并到 `main`：
+
+```bash
+git merge feature-darkmode
+```
+
+这个命令把 `feature-darkmode` 分支的改动合并到当前分支（也就是 `main`）。
+
+你会看到类似这样的输出：
+
+```
+Updating abc1234..def5678
+Fast-forward
+ notes.txt | 1 +
+ 1 file changed, 1 insertion(+)
+```
+
+打开 `notes.txt`——实验内容现在出现在 `main` 上了。
+
+**`git merge` 把另一个分支的改动整合到当前分支中。**
+
+## 创建并切换：一步到位
+
+每次先 `git branch` 再 `git switch` 有点麻烦？用一个命令搞定：
+
+```bash
+git switch -c feature-newpage
+```
+
+`-c` 是 `--create` 的缩写，创建分支并立即切换到它。试试在这个分支上修改 `README.md` 并提交。
+
+完成后切回 `main` 并合并：
+
+```bash
+git switch main
+git merge feature-newpage
+```
+
+## 删除已经合并的分支
+
+合并完之后，`feature-darkmode` 和 `feature-newpage` 就完成了使命。但它们还留在你的分支列表里。
+
+运行 `git branch` 看看——是不是有一堆已经没用的分支？这也会让你的 Tab 自动补全变得很烦。
+
+删除已经合并的分支：
+
+```bash
+git branch -d feature-darkmode
+git branch -d feature-newpage
+```
+
+`-d` 是 `--delete` 的缩写。Git 会检查这个分支是否已经合并到当前分支，如果是，才会允许删除。
+
+如果某个分支还没合并（Git 会提醒你），但你确定要删掉它，可以用 `-D` 强制删除：
+
+```bash
+git branch -D 分支名
+```
+
+再运行 `git branch` 看看，列表是不是清爽了？
+
+## 合并冲突：当两个分支都改了同一个地方
+
+有时，合并不会那么顺利。假设两个分支都修改了同一个文件的同一行，Git 不知道该保留哪一个。
+
+让我们制造一个冲突来练习。
+
+**第1步**：创建一个新文件并提交到 main：
+
+在 `my-first-repo` 里新建一个文件 `version.txt`，写入一行内容：
+
+```
+version = main
+```
+
+提交：
+
+```bash
+git add version.txt
+git commit -m "测试冲突（main分支提交）"
+```
+
+**第2步**：创建分支并修改同一行：
+
+```bash
+git switch -c feature-fix
+```
+
+把 `version.txt` 的那行改成：
+
+```
+version = fix
+```
+
+提交：
+
+```bash
+git add version.txt
+git commit -m "测试冲突（fix分支提交）"
+```
+
+**第3步**：切回 `main`，把同一行改成不同的内容：
+
+```bash
+git switch main
+```
+
+把 `version.txt` 的那行改成：
+
+```
+version = main-v2
+```
+
+提交：
+
+```bash
+git add version.txt
+git commit -m "测试冲突（main分支二次提交）"
+```
+
+现在两个分支各自修改了同一行，冲突即将产生。
+
+**第4步**：尝试合并：
+
+```bash
+git merge feature-fix
+```
+
+这次你会看到：
+
+```
+Auto-merging version.txt
+CONFLICT (content): Merge conflict in version.txt
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+**第5步**：打开 `version.txt`，你会看到 Git 用特殊标记标出了冲突区域：
+
+```
+<<<<<<< HEAD
+version = main-v2
+=======
+version = fix
+>>>>>>> feature-fix
+```
+
+- `<<<<<<< HEAD` 和 `=======` 之间是当前分支（`main`）的内容
+- `=======` 和 `>>>>>>> feature-fix` 之间是要合并的分支的内容
+
+**第6步**：编辑文件，删除所有标记，只保留你想要的版本。比如：
+
+```
+version = fix
+```
+
+然后完成合并：
+
+```bash
+git add version.txt
+git commit -m "合并 feature-fix 分支"
+```
+
+冲突解决了！
+
+**合并冲突不可怕**——Git 只是告诉你："这两个版本不一样，你来决定保留哪个。"
+
+## 你刚刚学会了什么
+
+- `git branch` — 创建和列出分支
+- `git switch <branch>` — 切换分支
+- `git switch -c <branch>` — 创建并切换分支
+- `git merge <branch>` — 合并另一个分支到当前分支
+- 解决合并冲突 — 编辑冲突文件，标记之间做选择
+
+分支让你可以安全地实验、并行开发、隔离新功能。下一章，你会学习如何在仓库之间传递代码——这为连接 GitHub 做好准备。
