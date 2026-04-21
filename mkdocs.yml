@@ -1,0 +1,39 @@
+site_name: Git 初学者教程
+site_description: 从零开始学习 Git 和 GitHub 的中文教程
+theme:
+  name: material
+  language: zh
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换到深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切换到浅色模式
+  features:
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.share
+
+nav:
+  - 首页: README.md
+  - 第一章 为什么要先从 Git 开始: 1-为什么要先从 Git 开始.md
+  - 第二章 创建你的第一个本地仓库: 2-创建你的第一个本地仓库.md
+  - 第三章 日常操作 保存和查看: 3-日常操作：保存和查看.md
+  - 第四章 撤销和修正 犯错也没关系: 4-撤销和修正：犯错也没关系.md
+  - 第五章 分支 安全地做实验: 5-分支：安全地做实验.md
+  - 第五章小结 单机 vs 远程: 5.5-小结：单机vs远程.md
+  - 第六章 仓库与仓库之间: 6-仓库与仓库之间.md
+  - 第七章 Git怎么知道你是谁: 7-Git怎么知道你是谁.md
+  - 第八章 连接到 GitHub: 8-连接到 GitHub.md
+  - 第九章 在 GitHub 上协作: 9-在 GitHub 上协作.md
+  - 第十章 最佳实践: 10-最佳实践.md
