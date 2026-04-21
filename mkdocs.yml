@@ -1,6 +1,5 @@
 site_name: Git 初学者教程
 site_description: 从零开始学习 Git 和 GitHub 的中文教程
-docs_dir: .
 theme:
   name: material
   language: zh
